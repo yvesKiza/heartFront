@@ -38,4 +38,10 @@ Route::get('/search/patient', function () {
     return view('patient.search');
 });
 
+Route::get('my/profile/edit-email', 'DocterController@editEmail')->name('docter.editEmail');
+Route::get('my/profile/edit-password', 'DocterController@editPassword')->name('docter.editPassword');
+
+Route::patch('my/profile/email', 'DocterController@updateEmail')->name('docter.updateEmail');
+Route::patch('my/profile/password', 'DocterController@updatePassword')->name('docter.updatePassword');
+
 

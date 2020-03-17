@@ -146,4 +146,92 @@ class DocterController extends Controller
     {
         //
     }
+    public function editPassword(){
+        return view('institution.editPassword');
+    }
+    public function editEmail(){
+        $user = Auth::user();
+        if(!$user->isInstitute()){
+         abort(403);
+        }
+    
+          $user=auth()->user();
+         
+          return view('institution.editProfileEmail',compact('user'));
+    }
+    public function editGeneral(){
+        $user = Auth::user();
+        if(!$user->isInstitute()){
+         abort(403);
+        }
+    
+          $user=auth()->user()->userable;
+         
+          return view('institution.editProfile',compact('user'));
+    }
+    public function updateEmail(Request $request)
+    {
+        $user = Auth::user();
+        if(!$user->isInstitute()){
+         abort(403);
+        }
+        
+        Validator::make($request->all(), [
+           
+            'password' => ['required', 'string', 'max:255',new checkPassword],
+            'email'=>'bail,email,unique:users,email,'.$user->id,'email_checker',
+            
+        ])->validate();
+        
+       
+       
+        
+         
+          $user->email=$request->email;
+         
+          $user->save();
+          return redirect()->route('company.profile');
+    }
+    public function updateGeneral(Request $request)
+    {
+        
+        Validator::make($request->all(), [
+           
+            'name' => ['required', 'string', 'max:255'],
+           
+            'address' =>['required','string'],
+            'website'=>['nullable','url','max:100'],
+            'description'=>['required','string','min:20']
+        ])->validate();
+        
+        $user = Auth::user();
+        if(!$user->isInstitute()){
+         abort(403);
+        }
+          
+          $institute=auth()->user()->userable; 
+         
+          $institute->name=$request->name;
+          $institute->address=$request->address;
+          $institute->description=$request->description;
+          $institute->website=$request->website;
+          $institute->save();
+          return redirect()->route('company.profile');
+    }
+    public function updatePassword(Request $request){
+        Validator::make($request->all(), [
+           
+            'current' => ['required', 'string',new checkPassword],
+            'new'=>'required|min:8|max:255',
+            'password_confirmation' => 'same:new',
+            
+            
+        ])->validate();
+        $user = Auth::user();
+        
+           $user->password= Hash::make($request->new);
+           $user->save();
+           $request->session()->flash('success', 'Password changed');
+           return redirect()->route('company.editPassword');
+    }
 }
